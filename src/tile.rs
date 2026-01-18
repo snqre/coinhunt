@@ -1,5 +1,9 @@
 use super::*;
 
+pub type Empty = Tile<IsEmpty>;
+pub type Coin = Tile<IsCoin>;
+pub type Player = Tile<IsPlayer>;
+
 #[derive(Clone)]
 pub struct IsEmpty;
 
@@ -22,7 +26,7 @@ impl<T> Default for Tile<T> {
     }
 }
 
-impl game::Tile for Tile<IsEmpty> {
+impl game::Tile for Empty {
     fn has_player(&self) -> bool {
         false
     }
@@ -32,7 +36,7 @@ impl game::Tile for Tile<IsEmpty> {
     }
 }
 
-impl game::Tile for Tile<IsCoin> {
+impl game::Tile for Coin {
     fn has_player(&self) -> bool {
         false
     }
@@ -42,7 +46,7 @@ impl game::Tile for Tile<IsCoin> {
     }
 }
 
-impl game::Tile for Tile<IsPlayer> {
+impl game::Tile for Player {
     fn has_player(&self) -> bool {
         true
     }

@@ -8,6 +8,8 @@ pub trait Tile {
 }
 
 pub type Point = (u8, u8);
+pub type NotComplete = Game<IsNotComplete>;
+pub type Complete = Game<IsComplete>;
 
 pub struct IsNotComplete;
 pub struct IsComplete;
@@ -74,8 +76,8 @@ impl<T> Game<T> {
     }
 }
 
-impl Game<IsNotComplete> {
-    fn move_and_check(mut self: Box<Self>, delta_x: i8, delta_y: i8) -> Result<Box<dyn super::Game<Complete = Game<IsComplete>>>> {
+impl NotComplete {
+    fn move_and_check(mut self: Box<Self>, delta_x: i8, delta_y: i8) -> Result<Box<dyn super::Game<Complete = Complete>>> {
         self.transform(delta_x, delta_y)?;
         if self.found() {
             let Self {
@@ -90,7 +92,7 @@ impl Game<IsNotComplete> {
                 sprite_sheet,
                 ..
             } = *self;
-            let ret: Game<IsComplete> = Game::<IsComplete> {
+            let ret: Complete = Complete {
                 phantom_data: PhantomData,
                 grid,
                 w,
@@ -102,7 +104,7 @@ impl Game<IsNotComplete> {
                 found,
                 sprite_sheet,
             };
-            let ret: Box<dyn super::Game<Complete = Game<IsComplete>>> = Box::new(ret);
+            let ret: Box<dyn super::Game<Complete = Complete>> = Box::new(ret);
             return Ok(ret);
         }
         Ok(self)
@@ -133,11 +135,11 @@ impl Game<IsNotComplete> {
         if new_y < 0 {
             new_y = 0;
         }
-        let tile: Box<dyn Tile> = Box::new(tile::Tile::<tile::IsEmpty>::default());
+        let tile: Box<tile::Empty> = Box::default();
         let old_x: u8 = old_x.try_into()?;
         let old_y: u8 = old_y.try_into()?;
         self.grid.insert((old_x, old_y), tile);
-        let tile: Box<dyn Tile> = Box::new(tile::Tile::<tile::IsPlayer>::default());
+        let tile: Box<tile::Player> = Box::default();
         let new_x: u8 = new_x.try_into()?;
         let new_y: u8 = new_y.try_into()?;
         self.player_x = new_x;
@@ -151,10 +153,10 @@ impl Game<IsNotComplete> {
     }
 }
 
-impl Default for Game<IsNotComplete> {
+impl Default for NotComplete {
     fn default() -> Self {
         let mut grid: HashMap<Point, Box<dyn Tile>> = HashMap::default();
-        let tile: Box<tile::Tile<tile::IsEmpty>> = Box::default();
+        let tile: Box<tile::Empty> = Box::default();
         let w: u8 = 4;
         let h: u8 = 4;
         let mut coin_x: u8 = 0;
@@ -172,10 +174,10 @@ impl Default for Game<IsNotComplete> {
                 let x: u8 = x;
                 let y: u8 = y;
                 if x == coin_x && y == coin_y {
-                    let tile: Box<tile::Tile<tile::IsCoin>> = Box::default();
+                    let tile: Box<tile::Coin> = Box::default();
                     grid.insert((x, y), tile);
                 } else if x == player_x && y == player_y {
-                    let tile: Box<tile::Tile<tile::IsPlayer>> = Box::default();
+                    let tile: Box<tile::Player> = Box::default();
                     grid.insert((x, y), tile);
                 } else {
                     grid.insert((x, y), tile.to_owned());
@@ -199,8 +201,8 @@ impl Default for Game<IsNotComplete> {
     }
 }
 
-impl super::Game for Game<IsNotComplete> {
-    type Complete = Game<IsComplete>;
+impl super::Game for NotComplete {
+    type Complete = Complete;
 
     fn move_left(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         self.move_and_check(-1, 0)
@@ -223,7 +225,7 @@ impl super::Game for Game<IsNotComplete> {
     }
 }
 
-impl super::Game for Game<IsComplete> {
+impl super::Game for Complete {
     type Complete = Self;
 
     fn move_left(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
@@ -242,7 +244,7 @@ impl super::Game for Game<IsComplete> {
         Ok(self)
     }
 
-    fn complete(self: Box<Self>) -> Option<Game<IsComplete>> {
+    fn complete(self: Box<Self>) -> Option<Self::Complete> {
         Some(*self)
     }
 }
