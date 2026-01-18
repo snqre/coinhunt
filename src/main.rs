@@ -2,10 +2,19 @@ use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::fmt::Display;
 use anyhow::Result;
-use game::Common as _;
 
 mod game;
 mod tile;
+
+pub trait Game {
+    type Complete;
+
+    fn move_left(self: Box<Self>) -> Result<Box<dyn Game<Complete = Self::Complete>>>;
+    fn move_right(self: Box<Self>) -> Result<Box<dyn Game<Complete = Self::Complete>>>;
+    fn move_up(self: Box<Self>) -> Result<Box<dyn Game<Complete = Self::Complete>>>;
+    fn move_down(self: Box<Self>) -> Result<Box<dyn Game<Complete = Self::Complete>>>;
+    fn complete(self: Box<Self>) -> Option<Self::Complete>;
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {

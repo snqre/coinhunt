@@ -1,8 +1,9 @@
 [package]
-name = "cosm"
-version = "0.1.0"
+name = "coinhunt"
+version = "1.0.0"
 edition = "2024"
 license = "Apache-2.0"
+publish = false
 
 [dependencies.anyhow]
 version = "1.0.100"

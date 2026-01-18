@@ -7,14 +7,6 @@ pub trait Tile {
     fn has_coin(&self) -> bool;
 }
 
-pub trait Common {
-    fn move_left(self: Box<Self>) -> Result<Box<dyn Common>>;
-    fn move_right(self: Box<Self>) -> Result<Box<dyn Common>>;
-    fn move_up(self: Box<Self>) -> Result<Box<dyn Common>>;
-    fn move_down(self: Box<Self>) -> Result<Box<dyn Common>>;
-    fn complete(self: Box<Self>) -> Option<Game<IsComplete>>;
-}
-
 pub type Point = (u8, u8);
 
 pub struct IsNotComplete;
@@ -83,7 +75,7 @@ impl<T> Game<T> {
 }
 
 impl Game<IsNotComplete> {
-    fn move_and_check(mut self: Box<Self>, delta_x: i8, delta_y: i8) -> Result<Box<dyn Common>> {
+    fn move_and_check(mut self: Box<Self>, delta_x: i8, delta_y: i8) -> Result<Box<dyn super::Game<Complete = Game<IsComplete>>>> {
         self.transform(delta_x, delta_y)?;
         if self.found() {
             let Self {
@@ -110,7 +102,8 @@ impl Game<IsNotComplete> {
                 found,
                 sprite_sheet,
             };
-            return Ok(Box::new(ret));
+            let ret: Box<dyn super::Game<Complete = Game<IsComplete>>> = Box::new(ret);
+            return Ok(ret);
         }
         Ok(self)
     }
@@ -206,20 +199,22 @@ impl Default for Game<IsNotComplete> {
     }
 }
 
-impl Common for Game<IsNotComplete> {
-    fn move_left(self: Box<Self>) -> Result<Box<dyn Common>> {
-        self.move_and_check(-1, 0)
-    }    
+impl super::Game for Game<IsNotComplete> {
+    type Complete = Game<IsComplete>;
 
-    fn move_right(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_left(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
+        self.move_and_check(-1, 0)
+    }
+
+    fn move_right(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         self.move_and_check(1, 0)
     }
 
-    fn move_up(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_up(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         self.move_and_check(0, -1)
     }
 
-    fn move_down(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_down(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         self.move_and_check(0, 1)
     }
 
@@ -228,20 +223,22 @@ impl Common for Game<IsNotComplete> {
     }
 }
 
-impl Common for Game<IsComplete> {
-    fn move_left(self: Box<Self>) -> Result<Box<dyn Common>> {
+impl super::Game for Game<IsComplete> {
+    type Complete = Self;
+
+    fn move_left(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         Ok(self)
     }
 
-    fn move_right(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_right(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         Ok(self)
     }
 
-    fn move_up(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_up(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         Ok(self)
     }
 
-    fn move_down(self: Box<Self>) -> Result<Box<dyn Common>> {
+    fn move_down(self: Box<Self>) -> Result<Box<dyn crate::Game<Complete = Self::Complete>>> {
         Ok(self)
     }
 
