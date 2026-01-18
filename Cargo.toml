@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2024"
 license = "Apache-2.0"
 publish = false
+readme = "readme.md"
 
 [dependencies.anyhow]
 version = "1.0.100"

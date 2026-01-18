@@ -1,0 +1,1 @@
+# Type state pattern and dyn trait for dynamic state transition
