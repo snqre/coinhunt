@@ -1,0 +1,15 @@
+[package]
+name = "cosm"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+
+[dependencies.anyhow]
+version = "1.0.100"
+
+[dependencies.tokio]
+version = "1.49.0"
+features = ["full"]
+
+[dependencies.fastrand]
+version = "2.3.0"
