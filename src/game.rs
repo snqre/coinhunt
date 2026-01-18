@@ -158,10 +158,6 @@ impl Game<IsNotComplete> {
     }
 }
 
-impl Game<IsComplete> {
-
-}
-
 impl Default for Game<IsNotComplete> {
     fn default() -> Self {
         let mut grid: HashMap<Point, Box<dyn Tile>> = HashMap::default();
